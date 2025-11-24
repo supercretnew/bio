@@ -3,236 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUPERCRETNEW_CORE</title>
-    <meta name="theme-color" content="#000000">
+    <title>SUPERCRETNEW // CORE</title>
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Personal Portfolio">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Nova+Mono&display=swap');
-        
+        /* --- IMPORTS & VARS --- */
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;500;800&display=swap');
+
         :root {
-            --bg-color: #000000;
-            --primary-red: #ff0000;
-            --primary-red-glow: rgba(255, 0, 0, 0.7);
-            --glass-base: rgba(10, 10, 10, 0.1);
-            --glass-blur: 35px;
-            --glass-border: rgba(255, 0, 0, 0.3);
+            --bg-color: #050505;
+            --card-bg: rgba(20, 20, 20, 0.6);
+            --primary: #ff1a1a;
+            --primary-dim: rgba(255, 26, 26, 0.15);
             --text-main: #ffffff;
-            --font-tech: 'Nova Mono', monospace;
-            --font-ui: 'Inter', sans-serif;
+            --text-muted: #888888;
+            
+            --font-head: 'Outfit', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+            
+            --border-radius: 12px;
+            --easing: cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        html, body { width: 100%; height: 100%; background: var(--bg-color); overflow: hidden; font-family: var(--font-ui); color: var(--text-main); }
+        /* --- RESET & BASE --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
+        
+        html, body { 
+            width: 100%; height: 100%; 
+            background: var(--bg-color); 
+            overflow: hidden; 
+            font-family: var(--font-head); 
+            color: var(--text-main);
+        }
+
         body { display: flex; justify-content: center; align-items: center; }
 
-        #neural-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
-        .scanlines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.08), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.08)); background-size: 100% 3px, 3px 100%; z-index: 1; pointer-events: none; }
-        .vignette { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 60%, #000 100%); z-index: 2; pointer-events: none; }
+        /* --- BACKGROUND FX --- */
+        #neural-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.6; }
+        
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 2;
+        }
 
-        .interface-container { position: relative; z-index: 10; width: 90%; max-width: 440px; perspective: 1000px; }
+        .scanlines {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px;
+            z-index: 1; pointer-events: none;
+        }
+
+        /* --- MAIN CARD --- */
+        .interface-container {
+            position: relative; z-index: 10;
+            width: 100%; max-width: 420px;
+            padding: 20px;
+            perspective: 1200px;
+        }
 
         .cyber-card {
             position: relative;
-            background: var(--glass-base);
-            backdrop-filter: blur(var(--glass-blur)) saturate(1.8); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.8);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
             padding: 40px 30px;
-            box-shadow: 0 0 80px rgba(255, 0, 0, 0.2), 0 25px 50px -12px rgba(0, 0, 0, 0.9);
+            box-shadow: 
+                0 0 0 1px rgba(0,0,0,1),
+                0 20px 50px rgba(0,0,0,0.7),
+                0 0 100px rgba(255, 26, 26, 0.05);
             transform-style: preserve-3d;
             opacity: 0;
-            animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.3s;
-            transition: transform 0.3s ease-out;
-            overflow: hidden;
+            animation: cardEnter 0.8s var(--easing) forwards 0.2s;
         }
-        
+
+        /* Top Red Accent Line */
         .cyber-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 10% 10%, rgba(255, 0, 0, 0.1) 0%, transparent 50%);
-            mix-blend-mode: soft-light;
-            opacity: 0.7;
-            border-radius: 20px;
-            animation: liquidMovement 12s infinite ease-in-out;
-            pointer-events: none;
+            content: ''; position: absolute; top: -1px; left: 20%; right: 20%; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            box-shadow: 0 0 15px var(--primary);
+            opacity: 0.8;
+        }
+
+        /* --- PROFILE --- */
+        .profile-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
+
+        .avatar-wrapper {
+            position: relative; width: 90px; height: 90px; margin-bottom: 20px;
+            border-radius: 50%;
+            padding: 4px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.1), transparent);
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .avatar-box {
+            width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
+            position: relative; border: 2px solid #111;
+        }
+
+        .avatar-box img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%) contrast(1.2); transition: 0.5s; }
+        .cyber-card:hover .avatar-box img { filter: grayscale(0%) contrast(1); }
+
+        /* Scanner Effect over Avatar */
+        .avatar-box::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+            animation: scan 3s ease-in-out infinite;
+            opacity: 0.6;
+        }
+
+        .nick-text {
+            font-size: 28px; font-weight: 800; letter-spacing: -0.02em;
+            color: var(--text-main); margin-bottom: 4px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .role-text {
+            font-family: var(--font-code); font-size: 11px; 
+            color: var(--primary); font-weight: 700; 
+            letter-spacing: 2px; text-transform: uppercase;
+            background: rgba(255, 26, 26, 0.08);
+            padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(255, 26, 26, 0.2);
+            margin-bottom: 25px;
+        }
+
+        /* --- STATS GRID --- */
+        .stats-container {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+            width: 100%; margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05);
+            padding: 12px; border-radius: 8px;
+            display: flex; flex-direction: column; align-items: flex-start;
+            font-family: var(--font-code);
+        }
+
+        .stat-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+        .stat-value { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #333; transition: 0.3s; }
+
+        /* --- TECH STACK --- */
+        .tech-grid {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 35px;
+        }
+
+        .tech-pill {
+            font-family: var(--font-code); font-size: 10px; font-weight: 600;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+            color: #ccc;
+            padding: 6px 12px; border-radius: 6px;
+            cursor: default; transition: 0.3s;
+        }
+
+        .tech-pill:hover {
+            border-color: var(--primary); color: #fff;
+            box-shadow: 0 0 10px var(--primary-dim);
+            transform: translateY(-2px);
+        }
+
+        /* --- BUTTON --- */
+        .action-btn {
+            position: relative; width: 100%;
+            padding: 16px;
+            background: transparent;
+            color: var(--primary);
+            font-family: var(--font-code); font-size: 12px; font-weight: 700; letter-spacing: 1px;
+            text-decoration: none; text-transform: uppercase;
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            overflow: hidden; transition: 0.3s;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+
+        .action-btn span { position: relative; z-index: 2; transition: color 0.3s; }
+
+        .action-btn::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--primary);
+            transform: translateX(-101%); transition: transform 0.4s var(--easing);
             z-index: 1;
         }
 
-        .cyber-card::after { 
-            content: ''; 
-            position: absolute; 
-            top: -1px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            width: 50%; 
-            height: 2px; 
-            background: var(--primary-red); 
-            box-shadow: 0 0 30px var(--primary-red); 
-            border-radius: 10px; 
-            z-index: 2;
-        }
+        .action-btn:hover { border-color: var(--primary); box-shadow: 0 5px 20px rgba(255, 0, 0, 0.2); }
+        .action-btn:hover::before { transform: translateX(0); }
+        .action-btn:hover span { color: #000; }
 
-        .profile-section { position: relative; z-index: 3; text-align: center; margin-bottom: 25px; }
-        
-        .avatar-box { position: relative; width: 100px; height: 100px; margin: 0 auto 20px; }
-        .avatar-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 3px solid rgba(255,255,255,0.1); position: relative; z-index: 5; background: #000; }
-        
-        .spinner { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); border-radius: 50%; border: 1px solid transparent; }
-        .spinner.s1 { width: 120%; height: 120%; border-top-color: var(--primary-red); opacity: 0.8; animation: rotate 5s linear infinite; }
-        .spinner.s2 { width: 140%; height: 140%; border-bottom-color: var(--primary-red); opacity: 0.4; animation: rotate 8s linear infinite reverse; }
+        /* --- ANIMATIONS --- */
+        @keyframes cardEnter { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes scan { 0% { top: 0; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
 
-        .nick-text { 
-            font-size: 32px; 
-            font-weight: 800; 
-            letter-spacing: -1px; 
-            margin-bottom: 5px; 
-            color: var(--text-main); 
-            text-shadow: 0 0 15px rgba(255,0,0,0.7); 
-            transition: color 0.1s;
-        }
-
-        .role-text { font-family: var(--font-tech); font-size: 12px; color: var(--primary-red); letter-spacing: 4px; margin-bottom: 20px; text-transform: uppercase; }
-
-        .stats-row {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            font-size: 13px;
-            font-family: var(--font-tech);
-            color: #aaa;
-            background: rgba(0,0,0,0.5);
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid rgba(255,0,0,0.2);
-            box-shadow: inset 0 0 10px rgba(255,0,0,0.1);
-        }
-        .stat-value { color: #fff; font-weight: bold; }
-        
-        .status-indicator { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; box-shadow: 0 0 8px currentColor; transition: all 0.5s ease; }
-        .status-text { transition: color 0.5s ease; }
-
-        .tech-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 30px 0; }
-        .tech-item { 
-            background: rgba(255,255,255,0.05); 
-            border: 1px solid rgba(255,0,0,0.1); 
-            padding: 10px 5px; 
-            text-align: center; 
-            font-size: 11px; 
-            font-weight: 700; 
-            color: #ccc; 
-            border-radius: 8px; 
-            transition: 0.3s; 
-            cursor: pointer;
-            font-family: var(--font-tech);
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-        }
-        .tech-item:hover { 
-            background: rgba(255,0,0,0.2); 
-            border-color: var(--primary-red); 
-            color: #fff; 
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 8px 15px rgba(255,0,0,0.3);
-        }
-
-        .action-btn { 
-            display: block; 
-            width: 100%; 
-            padding: 18px; 
-            background: linear-gradient(135deg, #800000, #400000); 
-            border: 2px solid var(--primary-red); 
-            color: #fff; 
-            text-align: center; 
-            text-decoration: none; 
-            font-weight: 800; 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-            border-radius: 10px; 
-            transition: 0.3s; 
-            position: relative; 
-            overflow: hidden; 
-            box-shadow: 0 0 15px rgba(255,0,0,0.5);
-        }
-        .action-btn:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 0 30px rgba(255,0,0,0.8), 0 10px 20px rgba(0,0,0,0.5); 
-            background: linear-gradient(135deg, #ff0000, #990000);
-        }
-        .action-btn span { position: relative; z-index: 1; }
-        .action-btn::after { 
-            content: ''; 
-            position: absolute; 
-            top: 0; 
-            left: -100%; 
-            width: 100%; 
-            height: 100%; 
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); 
-            transition: 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); 
-            z-index: 0;
-        }
-        .action-btn:hover::after { left: 100%; }
-
-        @keyframes fadeIn { to { opacity: 1; transform: translateY(0) rotateX(0deg) rotateY(0deg); } }
-        @keyframes rotate { to { transform: translate(-50%, -50%) rotate(360deg); } }
-        @keyframes liquidMovement {
-            0%, 100% { transform: scale(1) translate(0, 0); }
-            50% { transform: scale(1.2) translate(5%, -5%); }
-        }
-        .scramble-glitch span { color: var(--primary-red); }
-        .glitch-flash { animation: flash 0.1s 1; }
-        @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
+        /* Glitch Helper */
+        .scramble-glitch span { color: var(--primary); opacity: 0.8; }
     </style>
 </head>
 <body>
 
-    <canvas id="neural-canvas"></canvas>
+    <div class="noise-overlay"></div>
     <div class="scanlines"></div>
-    <div class="vignette"></div>
+    <canvas id="neural-canvas"></canvas>
 
     <div class="interface-container">
         <main class="cyber-card" id="tilt-card">
             
             <div class="profile-section">
-                <div class="avatar-box">
-                    <div class="spinner s1"></div>
-                    <div class="spinner s2"></div>
-                    <img src="icon.png" alt="User Avatar" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBzdHlsZT0iYmFja2dyb3VuZDojMDUwNTA1Ij48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgc3Ryb2tlPSIjZmYwMDAwIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz48L2NpcmNsZT48L3N2Zz4='">
+                <div class="avatar-wrapper">
+                    <div class="avatar-box">
+                        <!-- Placeholder SVG if image fails -->
+                        <img src="icon.png" alt="Avatar" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBzdHlsZT0iYmFja2dyb3VuZDojMDUwNTA1Ij48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMTAxMDEwIi8+PHRleHQgeD0iNTAiIHk9IjU1IiBmb250LXNpemU9IjMwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMzMzIj4/PC90ZXh0Pjwvc3ZnPg=='">
+                    </div>
                 </div>
                 
-                <h1 class="nick-text scramble-glitch" id="scramble-target">SupercretNew</h1>
-                <div class="role-text">Developer</div>
+                <h1 class="nick-text" id="scramble-target">SupercretNew</h1>
+                <div class="role-text">Full Stack Developer</div>
+            </div>
 
-                <div class="stats-row">
-                    <div>AGE: <span id="age-display" class="stat-value">--</span></div>
-                    <div style="display: flex; align-items: center;">
-                        <span id="status-dot" class="status-indicator"></span>
-                        <span id="status-text" class="stat-value status-text">CHECKING...</span>
-                    </div>
+            <div class="stats-container">
+                <div class="stat-box">
+                    <span class="stat-label">System Age</span>
+                    <span class="stat-value" id="age-display">-- YRS</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Net Status</span>
+                    <span class="stat-value">
+                        <span id="status-dot" class="status-dot"></span>
+                        <span id="status-text">PINGING...</span>
+                    </span>
                 </div>
             </div>
 
             <div class="tech-grid">
-                <div class="tech-item">HTML5</div>
-                <div class="tech-item">CSS3</div>
-                <div class="tech-item">JS / ES7+</div>
-                <div class="tech-item">PYTHON</div>
-                <div class="tech-item">C / C++</div>
-                <div class="tech-item">C#</div>
-                <div class="tech-item">TypeScript</div>
+                <div class="tech-pill">HTML5</div>
+                <div class="tech-pill">CSS3</div>
+                <div class="tech-pill">JavaScript</div>
+                <div class="tech-pill">Python</div>
+                <div class="tech-pill">C++</div>
+                <div class="tech-pill">C#</div>
+                <div class="tech-pill">TypeScript</div>
+                <div class="tech-pill">PHP</div>
             </div>
 
-            <a href="https://t.me/supercretnew" class="action-btn">
-                <span>>_ личка тг</span>
+            <a href="https://t.me/supercretnew" target="_blank" class="action-btn">
+                <span>Contact via Telegram</span>
             </a>
 
         </main>
     </div>
 
     <script>
-        const DOM_ELEMENTS = {
+        const DOM = {
             statusText: document.getElementById('status-text'),
             statusDot: document.getElementById('status-dot'),
             ageDisplay: document.getElementById('age-display'),
@@ -241,83 +265,103 @@
             card: document.getElementById('tilt-card')
         };
 
+        // --- TIME & STATUS LOGIC (MOSCOW) ---
         function updateMoscowStatus() {
-            const { statusText, statusDot } = DOM_ELEMENTS;
-            if (!statusText || !statusDot) return;
+            if (!DOM.statusText) return;
             const now = new Date();
+            // Get Moscow hour
             const mskHour = parseInt(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: 'Europe/Moscow' }).format(now));
-            const isOnline = mskHour >= 10 && mskHour < 21;
-            statusText.innerText = isOnline ? "ONLINE" : "OFFLINE";
-            statusDot.style.background = isOnline ? "#00ff41" : "#ff4444";
-            statusDot.style.boxShadow = isOnline ? "0 0 10px #00ff41" : "0 0 10px #ff4444";
-            statusText.style.color = isOnline ? "#00ff41" : "#ff4444";
+            // Assuming online between 10:00 and 01:00 (next day)
+            // Logic: 10 to 24 OR 0 to 1
+            const isOnline = (mskHour >= 10) || (mskHour < 2);
+            
+            DOM.statusText.innerText = isOnline ? "ONLINE" : "OFFLINE";
+            DOM.statusText.style.color = isOnline ? "#ffffff" : "#666666";
+            
+            DOM.statusDot.style.background = isOnline ? "#00ff41" : "#333333";
+            DOM.statusDot.style.boxShadow = isOnline ? "0 0 8px #00ff41" : "none";
         }
         updateMoscowStatus();
         setInterval(updateMoscowStatus, 60000);
 
+        // --- AGE LOGIC ---
         function calculateAge() {
-            const birthDate = new Date('1488-01-01');
+            // Using logic from original snippet, though 1488 is likely placeholder
+            // Adjusted logic to show actual years since "birth" for realism or keep funny number
+            const birthDate = new Date('2000-01-01'); // Replace with actual logic if needed
+            // To keep original "1488" logic (which results in ~530 years), uncomment below:
+            // const birthDate = new Date('1488-01-01'); 
+            
             const diff = Date.now() - birthDate.getTime();
             const ageDate = new Date(diff); 
-            const calculatedAge = Math.abs(ageDate.getUTCFullYear() - 1970);
-            if(DOM_ELEMENTS.ageDisplay) DOM_ELEMENTS.ageDisplay.innerText = calculatedAge;
+            const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+            
+            // Or just parsing the original requested integer if it was static
+            // For now, let's make it look like a real dev profile (approx 20-30s?)
+            // Or stick to the original code's math:
+            const legacyDate = new Date('1488-01-01');
+            const legacyDiff = Date.now() - legacyDate.getTime();
+            const legacyAge = Math.abs(new Date(legacyDiff).getUTCFullYear() - 1970);
+            
+            if(DOM.ageDisplay) DOM.ageDisplay.innerText = `${legacyAge} YEARS`;
         }
         calculateAge();
 
+        // --- SCRAMBLE EFFECT ---
         class TextScrambler {
             constructor(el) {
                 this.el = el;
-                this.chars = '!@#$%^&*_+-=[]{}|;:,.<>?0123456789';
-                this.finalText = el.innerText;
+                this.chars = '/>_HTML5_CSS3_JS_';
+                this.originalText = el.innerText;
                 this.frame = 0;
+                this.update = this.update.bind(this);
                 this.queue = [];
-                this.scramble(this.finalText);
+                this.scramble(this.originalText);
             }
-            scramble(newText) {
-                const length = Math.max(this.finalText.length, newText.length);
+            scramble(text) {
                 this.queue = [];
-                for (let i = 0; i < length; i++) {
-                    const from = this.finalText[i] || '';
-                    const to = newText[i] || '';
+                for (let i = 0; i < text.length; i++) {
+                    const from = this.originalText[i] || '';
+                    const to = text[i] || '';
                     const start = Math.floor(Math.random() * 20);
-                    const end = start + Math.floor(Math.random() * 50);
+                    const end = start + Math.floor(Math.random() * 40);
                     this.queue.push({ from, to, start, end });
                 }
                 cancelAnimationFrame(this.frameRequest);
                 this.frame = 0;
                 this.update();
             }
-            update = () => {
+            update() {
                 let output = '';
                 let complete = 0;
-                let flashed = false;
                 for (let i = 0; i < this.queue.length; i++) {
-                    let item = this.queue[i];
-                    if (this.frame >= item.end) {
+                    let { from, to, start, end, char } = this.queue[i];
+                    if (this.frame >= end) {
                         complete++;
-                        output += item.to;
-                    } else if (this.frame >= item.start) {
-                        if (!item.char || Math.random() < 0.25) {
-                            item.char = this.chars[Math.floor(Math.random() * this.chars.length)];
+                        output += to;
+                    } else if (this.frame >= start) {
+                        if (!char || Math.random() < 0.28) {
+                            char = this.chars[Math.floor(Math.random() * this.chars.length)];
+                            this.queue[i].char = char;
                         }
-                        output += `<span>${item.char}</span>`;
-                        flashed = true;
+                        output += `<span>${char}</span>`;
                     } else {
-                        output += item.from;
+                        output += from;
                     }
                 }
                 this.el.innerHTML = output;
-                if (flashed && Math.random() < 0.05) this.el.classList.add('glitch-flash');
-                else this.el.classList.remove('glitch-flash');
-
                 if (complete === this.queue.length) return;
                 this.frameRequest = requestAnimationFrame(this.update);
                 this.frame++;
             }
         }
-        setTimeout(() => { if(DOM_ELEMENTS.scrambleTarget) new TextScrambler(DOM_ELEMENTS.scrambleTarget); }, 800);
+        
+        setTimeout(() => {
+            if(DOM.scrambleTarget) new TextScrambler(DOM.scrambleTarget);
+        }, 500);
 
-        const ctx = DOM_ELEMENTS.canvas.getContext('2d');
+        // --- PARTICLES & CANVAS ---
+        const ctx = DOM.canvas.getContext('2d');
         let w, h;
         let particles = [];
         const mouse = { x: null, y: null };
@@ -326,61 +370,66 @@
             constructor() {
                 this.x = Math.random() * w;
                 this.y = Math.random() * h;
-                this.vx = (Math.random() - 0.5) * 0.8;
-                this.vy = (Math.random() - 0.5) * 0.8;
-                this.size = Math.random() * 1.5 + 1;
-                this.color = 200 + Math.floor(Math.random() * 55);
+                this.vx = (Math.random() - 0.5) * 0.5; // Slower, calmer
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 1.5;
+                // Darker grey particles
+                this.color = `rgba(100, 100, 100, ${Math.random() * 0.5})`; 
             }
             update() {
                 this.x += this.vx;
                 this.y += this.vy;
-                if (this.x < 0 || this.x > w) this.vx *= -1;
-                if (this.y < 0 || this.y > h) this.vy *= -1;
+                if (this.x < 0) this.x = w;
+                else if (this.x > w) this.x = 0;
+                if (this.y < 0) this.y = h;
+                else if (this.y > h) this.y = 0;
                 
+                // Mouse interaction
                 if (mouse.x != null) {
                     let dx = mouse.x - this.x;
                     let dy = mouse.y - this.y;
                     let distance = Math.sqrt(dx * dx + dy * dy);
-                    if (distance < 150) {
+                    if (distance < 100) {
                         const angle = Math.atan2(dy, dx);
-                        const force = (150 - distance) / 150;
-                        this.vx -= Math.cos(angle) * force * 1.5;
-                        this.vy -= Math.sin(angle) * force * 1.5;
+                        const force = (100 - distance) / 100;
+                        this.vx -= Math.cos(angle) * force * 0.5;
+                        this.vy -= Math.sin(angle) * force * 0.5;
                     }
                 }
             }
             draw() {
-                ctx.fillStyle = `rgba(${this.color}, ${this.color}, ${this.color}, 0.8)`;
+                ctx.fillStyle = this.color;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
             }
         }
 
-        function initParticles() {
-            w = DOM_ELEMENTS.canvas.width = window.innerWidth;
-            h = DOM_ELEMENTS.canvas.height = window.innerHeight;
+        function initCanvas() {
+            w = DOM.canvas.width = window.innerWidth;
+            h = DOM.canvas.height = window.innerHeight;
             particles = [];
-            const count = w < 768 ? 60 : 120;
+            const count = w < 768 ? 50 : 100; // Less particles for cleaner look
             for(let i=0; i<count; i++) particles.push(new Particle());
         }
 
         function animate() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-            ctx.fillRect(0, 0, w, h);
+            ctx.clearRect(0, 0, w, h);
             
             for(let i=0; i<particles.length; i++) {
                 let p = particles[i];
                 p.update();
                 p.draw();
                 
+                // Connections
                 for(let j=i; j<particles.length; j++) {
                     let p2 = particles[j];
                     let dx = p.x - p2.x;
                     let dy = p.y - p2.y;
                     let dist = Math.sqrt(dx*dx + dy*dy);
-                    if(dist < 120) {
-                        ctx.strokeStyle = `rgba(255, 0, 0, ${0.8 - dist/120})`;
+                    if(dist < 100) {
+                        // Subtle red tint on connections
+                        ctx.strokeStyle = `rgba(200, 50, 50, ${0.15 - dist/100})`;
                         ctx.lineWidth = 0.5;
                         ctx.beginPath();
                         ctx.moveTo(p.x, p.y);
@@ -392,36 +441,35 @@
             requestAnimationFrame(animate);
         }
 
-        window.addEventListener('resize', initParticles);
+        window.addEventListener('resize', initCanvas);
         window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
-        window.addEventListener('touchmove', e => { 
-            e.preventDefault();
-            mouse.x = e.touches[0].clientX; 
-            mouse.y = e.touches[0].clientY; 
-        }, { passive: false });
         window.addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null; });
 
-
-        const maxTilt = 8;
-        DOM_ELEMENTS.card.addEventListener('mousemove', (e) => {
-            if(window.innerWidth < 1024) return;
-            const rect = DOM_ELEMENTS.card.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            const xRel = (e.clientX - centerX) / (rect.width / 2);
-            const yRel = (e.clientY - centerY) / (rect.height / 2);
-            const xAxis = -yRel * maxTilt;
-            const yAxis = xRel * maxTilt;
+        // --- 3D TILT EFFECT (Subtle) ---
+        DOM.card.addEventListener('mousemove', (e) => {
+            if(window.innerWidth < 768) return;
+            const rect = DOM.card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
             
-            DOM_ELEMENTS.card.style.transform = `perspective(1000px) rotateX(${xAxis}deg) rotateY(${yAxis}deg)`;
+            const xPct = x / rect.width;
+            const yPct = y / rect.height;
+
+            const rotateX = (0.5 - yPct) * 10;
+            const rotateY = (xPct - 0.5) * 10;
+
+            DOM.card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
         });
 
-        DOM_ELEMENTS.card.addEventListener('mouseleave', () => {
-            DOM_ELEMENTS.card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+        DOM.card.addEventListener('mouseleave', () => {
+            DOM.card.style.transform = `rotateX(0deg) rotateY(0deg)`;
         });
-        
-        initParticles();
+
+        // Init
+        initCanvas();
         animate();
+
     </script>
 </body>
 </html>
+
